@@ -3,19 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Node {
+public class Node : IHeapItem<Node> {
     public bool walkable;
     public Vector3 worldPosition;
     public Vector2Int gridPosition;
 
-    // Manhattan Cost
-    public static float diagonalCost = 1.4142135624f;
-    public static float directCost = 1f;
+    public Node parent;
+    public int heapIndex { get; set; }
 
     public float gCost;
     public float hCost;
+    public float fCost => gCost + hCost;
 
-    public Node parent;
+
+    // Manhattan Cost
+    public static float diagonalCost = 1.4142135624f;
+    public static float directCost = 1f;
 
     public Node(bool _walkable, Vector3 _worldPosition, Vector2Int _gridPosition) {
         walkable = _walkable;
@@ -23,11 +26,11 @@ public class Node {
         gridPosition = _gridPosition;
     }
 
-    public Node(bool _walkable, Vector3 _worldPosition, int _gridPosX, int _gridPosY) {
-        new Node(_walkable, _worldPosition, new Vector2Int(_gridPosX, _gridPosY));
-    }
+    public int CompareTo(Node other) {
+        int compare = fCost.CompareTo(other.fCost);
+        if (compare == 0)
+            compare = hCost.CompareTo(other.hCost);
 
-    public float fCost {
-        get { return gCost + hCost; }
+        return -compare;
     }
 }

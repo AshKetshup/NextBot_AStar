@@ -29,25 +29,26 @@ public class PlayerMovement : MonoBehaviour {
     private Rigidbody rigidBody;
 
 
-    private void movePlayer() {
+    private void MovePlayer() {
         moveDirection = orientation.forward * input.y + orientation.right * input.x;
 
         float multiplier = ((grounded) ? 1f : airMultiplier);
         rigidBody.AddForce(moveDirection.normalized * moveSpeed * 10f * multiplier, ForceMode.Force);
     }
 
-    private void getInput() {
+    private void GetInput() {
         input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
         if (Input.GetKey(jumpKey) && jumpReady && grounded) {
-            Console.WriteLine("JUMP!");
+            Debug.Log("JUMP!");
             jumpReady = false;
-            jump();
-            Invoke(nameof(jumpReset), jumpCooldown);
-        }
+            Jump();
+            Invoke(nameof(JumpReset), jumpCooldown);
+        } /* else
+            Debug.Log(string.Format("Input.GetKey(jumpKey) = {0}, jumpReady = {1}, grounded = {2}", Input.GetKey(jumpKey), jumpReady, grounded)); */
     }
 
-    private void controlSpeed() {
+    private void ControlSpeed() {
         Vector3 flatVelocity = new Vector3(rigidBody.velocity.x, 0f, rigidBody.velocity.z);
         if (flatVelocity.magnitude > moveSpeed) {
             Vector3 limitedVelocity = flatVelocity.normalized * moveSpeed;
@@ -55,14 +56,13 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
-    private void jump() {
+    private void Jump() {
         rigidBody.velocity = new Vector3(rigidBody.velocity.x, 0f, rigidBody.velocity.z);
         rigidBody.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
 
-    private void jumpReset() {
-        jumpReady = true;
-    }
+    private void JumpReset() => jumpReady = true;
+
 
     // Start is called before the first frame update
     private void Start() {
@@ -71,16 +71,13 @@ public class PlayerMovement : MonoBehaviour {
         jumpReady = true;
     }
 
-
-    private void FixedUpdate() {
-        movePlayer();
-    }
+    private void FixedUpdate() => MovePlayer();
 
     // Update is called once per frame
     private void Update() {
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
-        getInput();
-        controlSpeed();
+        GetInput();
+        ControlSpeed();
 
         // Handle dragging
         rigidBody.drag = ( grounded )
