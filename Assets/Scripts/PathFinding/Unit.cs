@@ -8,8 +8,13 @@ public class Unit : MonoBehaviour {
     public float speed = 6f;
     Vector3[] path;
     int targetIndex;
-
+    public AudioSource deathSound;
+    public AudioSource sillyMusic;
+    private void Start() {
+        sillyMusic.Play();
+    }
     private void Update() {
+        
         PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
     }
 
@@ -19,9 +24,20 @@ public class Unit : MonoBehaviour {
             return;
 
         path = newPath;
-        targetIndex = 0;
-        StopCoroutine("FollowPath");
-        StartCoroutine("FollowPath");
+        Debug.Log(Vector3.Distance(transform.position, target.position));
+        if (path.Length > 0)
+        {
+            deathSound.Stop();
+            targetIndex = 0;
+            StopCoroutine("FollowPath");
+            StartCoroutine("FollowPath");
+        }
+        else
+        {
+            if (!deathSound.isPlaying)
+                deathSound.Play();
+            Debug.Log("death sound");
+        }
     }
 
     private IEnumerator FollowPath() {
